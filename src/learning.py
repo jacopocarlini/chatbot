@@ -2,8 +2,7 @@ import sys
 import os
 from extract import extract_text_from_pdf, extract_text_from_txt
 from parse_relations import extract_triples
-from neo4j_loader import insert_triple
-from bot import graph_app
+from neo4j_loader import insert_triple, clear_graph
 
 # Funzione per elaborare un singolo file
 def process_file(path):
@@ -16,12 +15,12 @@ def process_file(path):
         return
 
     triples = extract_triples(text)
-    print(f"✅ Triple trovate in {os.path.basename(path)}:", triples)
 
     for subj, rel, obj in triples:
-        insert_triple(subj, rel, obj)
+        print(f"📤 Inserimento triple in Neo4j: ({subj} == {rel} => {obj})")
+        insert_triple(subj.lower(), rel.lower(), obj.lower())
 
-    print(f"📥 Dati da {os.path.basename(path)} inseriti in Neo4j.")
+    print(f"Dati da {os.path.basename(path)} inseriti in Neo4j [{len(triples)}]")
 
 # Funzione per elaborare tutti i file supportati in una cartella
 def populate_graph_from_directory(folder_path):
@@ -49,6 +48,7 @@ def main():
         return
 
     folder_path = sys.argv[1]
+    # clear_graph()
     populate_graph_from_directory(folder_path)
 
 if __name__ == "__main__":

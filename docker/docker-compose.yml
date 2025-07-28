@@ -1,3 +1,4 @@
+# docker-compose.yml
 version: '3.8'
 
 services:
@@ -5,12 +6,14 @@ services:
     image: neo4j:5.19
     container_name: neo4j
     ports:
-      - "7474:7474"   # interfaccia web
-      - "7687:7687"   # bolt (usato da LangChain, Python, ecc.)
+      - "7474:7474"   # Interfaccia web di Neo4j
+      - "7687:7687"   # Porta Bolt per la connessione dal codice
     environment:
-      NEO4J_AUTH: neo4j/verysecret  # username/password
+      NEO4J_AUTH: neo4j/verysecret
+      NEO4J_PLUGINS: '["apoc"]' # Installa automaticamente il plugin APOC
     volumes:
       - neo4j_data:/data
+      - neo4j_plugins:/plugins
     restart: unless-stopped
 
   ollama:
@@ -19,9 +22,10 @@ services:
     ports:
       - "11434:11434"
     volumes:
-      - ollama:/root/.ollama
+      - ollama_data:/root/.ollama
     restart: unless-stopped
 
 volumes:
   neo4j_data:
-  ollama:
+  neo4j_plugins:
+  ollama_data:

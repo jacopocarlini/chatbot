@@ -1,5 +1,10 @@
+# requirements.txt
 langchain
+langchain-core
+langchain-community
+langchain-neo4j
+langchain-ollama
 langgraph
-neo4j
 pypdf
-ollama
+python-dotenv
+neo4j

@@ -12,3 +12,7 @@ def _insert(tx, subj, rel, obj):
     MERGE (b:Entity {name: $obj})
     MERGE (a)-[:RELATION {type: $rel}]->(b)
     """, subj=subj, rel=rel, obj=obj)
+
+def clear_graph():
+    with driver.session() as session:
+        session.run("MATCH (n) DETACH DELETE n")

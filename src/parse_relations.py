@@ -1,24 +1,39 @@
 from langchain_ollama import OllamaLLM
+from langchain_core.prompts import PromptTemplate
 
 llm = OllamaLLM(
-    model="llama3",
+    model="phi3:mini",
     base_url="http://localhost:11434"  # fondamentale!
 )
 
-def extract_triples(text):
-    prompt = f"""
-Estrai relazioni dal testo nel formato (soggetto)-[relazione]->(oggetto).
-Testo:
+prompt_template = PromptTemplate(
+    input_variables=["text"],
+    template="""
+Dato il seguente testo, estrai tutte le entità e le relazioni significative nel formato di triplette (soggetto, relazione, oggetto).
+Il soggetto e l'oggetto devono essere entità (es. persone, organizzazioni, luoghi, concetti).
+La relazione deve descrivere come il soggetto e l'oggetto sono collegati.
+Fornisci il risultato come una lista di triplette di stringhe. 
+
+Esempio: [("soggetto", "relazione", "oggetto"), ...]
+
+Testo da analizzare:
+---
 {text}
+---
 """
+)
+
+def extract_triples(text: str):
+    prompt = prompt_template.format(text=text)
     result = llm.invoke(prompt)
-    lines = result.strip().split("\n")
-    triples = []
-    for line in lines:
-        if "->" in line:
-            parts = line.strip("()").split(")-[")
-            if len(parts) == 2:
-                subj = parts[0].strip()
-                rel, obj = parts[1].split("]->(")
-                triples.append((subj.strip(), rel.strip(), obj.strip(") \n").strip()))
-    return triples
+
+    # Prova a valutare la risposta come lista Python
+    try:
+        triples = eval(result)
+        if isinstance(triples, list):
+            return triples
+    except Exception as e:
+        print("⚠️ Errore durante il parsing delle triple:", e)
+        print("Risposta del modello:", result)
+
+    return []
