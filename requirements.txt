@@ -1,0 +1,5 @@
+langchain
+langgraph
+neo4j
+pypdf
+ollama

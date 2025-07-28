@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  neo4j:
+    image: neo4j:5.19
+    container_name: neo4j
+    ports:
+      - "7474:7474"   # interfaccia web
+      - "7687:7687"   # bolt (usato da LangChain, Python, ecc.)
+    environment:
+      NEO4J_AUTH: neo4j/verysecret  # username/password
+    volumes:
+      - neo4j_data:/data
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  neo4j_data:
+  ollama:
