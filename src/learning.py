@@ -48,7 +48,7 @@ def main():
         return
 
     folder_path = sys.argv[1]
-    # clear_graph()
+    clear_graph()
     populate_graph_from_directory(folder_path)
 
 if __name__ == "__main__":

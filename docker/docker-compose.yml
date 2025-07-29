@@ -24,7 +24,13 @@ services:
     volumes:
       - ollama_data:/root/.ollama
     restart: unless-stopped
-
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "ollama serve & 
+       sleep 5 &&
+       curl -X POST http://localhost:11434/api/pull -d '{\"name\":\"phi3:mini\"}' &&
+       curl -X POST http://localhost:11434/api/pull -d '{\"name\":\"llama3\"}' &&
+       wait"
 volumes:
   neo4j_data:
   neo4j_plugins:
