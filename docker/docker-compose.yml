@@ -1,9 +1,8 @@
-# docker-compose.yml
 version: '3.8'
 
 services:
   neo4j:
-    image: neo4j:5.19
+    image: neo4j:latest
     container_name: neo4j
     ports:
       - "7474:7474"   # Interfaccia web di Neo4j
@@ -23,14 +22,10 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
+      - ./ollama-startup.sh:/ollama-startup.sh
     restart: unless-stopped
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      "ollama serve & 
-       sleep 5 &&
-       curl -X POST http://localhost:11434/api/pull -d '{\"name\":\"phi3:mini\"}' &&
-       curl -X POST http://localhost:11434/api/pull -d '{\"name\":\"llama3\"}' &&
-       wait"
+    entrypoint: ["/bin/bash", "/ollama-startup.sh"]
+
 volumes:
   neo4j_data:
   neo4j_plugins:

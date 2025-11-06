@@ -8,3 +8,4 @@ langgraph
 pypdf
 python-dotenv
 neo4j
+beautifulsoup4
