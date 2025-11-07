@@ -1,3 +1,5 @@
+from typing import Dict, Any
+
 from langgraph.graph import StateGraph, END
 
 from agent_nodes import AgentState, retrieve, generate
@@ -34,7 +36,6 @@ def run_chat_interface(app):
     print("=============================================")
     print("Digita 'esci' per terminare. Digita 'mostra fonti' dopo una risposta per vedere i documenti originali.")
 
-    show_context_next = False
     last_state: Dict[str, Any] = {}
 
     while True:
