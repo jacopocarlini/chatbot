@@ -165,24 +165,18 @@ def _insert_doc_title_emb(tx, doc_id, title, embedding_title):
     """, doc_id=doc_id, title=title, embedding_title=embedding_title)
 
 
-def _insert_paragraph_and_emb(tx, doc_id, paragraph_id, text, embedding_paragraph):
+def _insert_paragraph_and_emb(tx, doc_id, paragraph_id, text, embedding_paragraph, page):
     tx.run("""
     MATCH (d:Document {id: $doc_id})
     MERGE (p:Paragraph {id: $paragraph_id})
     ON CREATE SET p.text = $text
+    ON CREATE SET p.page = $page
     MERGE (e:EmbeddingParagraph {vector: $embedding_paragraph})
 
     MERGE (d)-[:HAS_PARAGRAPH]->(p)
     MERGE (p)-[:HAS_EMBEDDING]->(e)
-    """, doc_id=doc_id, paragraph_id=paragraph_id, text=text, embedding_paragraph=embedding_paragraph)
+    """, doc_id=doc_id, paragraph_id=paragraph_id, text=text, embedding_paragraph=embedding_paragraph, page=page)
 
-
-def _insert_paragraph_link(tx, source_paragraph_id, target_document_id):
-    tx.run("""
-    MATCH (p:Paragraph {id: $source_paragraph_id})
-    MATCH (d:Document {id: $target_document_id})
-    MERGE (p)-[:LINKS]->(d)
-    """, source_paragraph_id=source_paragraph_id, target_document_id=target_document_id)
 
 
 def _insert_question_and_answer(tx, question_id, text, embedding_question, answer_paragraph_id):
@@ -218,7 +212,7 @@ def insert_document_and_title_embedding(doc_id, title):
         session.execute_write(_insert_doc_title_emb, doc_id, title, embedding_title)
 
 
-def insert_paragraph(doc_id, paragraph_id, text):
+def insert_paragraph(doc_id, paragraph_id, text, page):
     """
     Calcola l'embedding del paragrafo (Ollama) e inserisce Paragrafo ed Embedding.
     """
@@ -229,16 +223,7 @@ def insert_paragraph(doc_id, paragraph_id, text):
         return
 
     with driver.session() as session:
-        session.execute_write(_insert_paragraph_and_emb, doc_id, paragraph_id, text, embedding_paragraph)
-
-
-def insert_paragraph_link(source_paragraph_id, target_document_id):
-    """
-    Crea la relazione LINKS tra un Paragrafo e un Documento.
-    """
-    if not driver: return
-    with driver.session() as session:
-        session.execute_write(_insert_paragraph_link, source_paragraph_id, target_document_id)
+        session.execute_write(_insert_paragraph_and_emb, doc_id, paragraph_id, text, embedding_paragraph, page)
 
 
 def insert_question_and_answer(question_id, text, answer_paragraph_id):
@@ -283,8 +268,7 @@ def create_graph_from_document():
         print(f"  - Inserimento Paragrafo {i + 1} (ID: {paragraph_id})")
 
         # Inserisce il Paragrafo e il suo Paragraph Embedding
-        insert_paragraph(doc_id, paragraph_id, chunk_text)
-        insert_paragraph_link(paragraph_id, doc_id)
+        insert_paragraph(doc_id, paragraph_id, chunk_text, i+1)
 
     # Esempio di Domanda fittizia legata al primo paragrafo
     insert_question_and_answer(

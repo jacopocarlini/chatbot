@@ -12,6 +12,7 @@ echo "📥 Inizio download dei modelli..."
 ollama pull phi3:mini
 ollama pull llama3
 ollama pull mistral
+# gpt-oss:20b
 echo "✅ Download modelli completato."
 
 # 4. Attendi che il processo Ollama principale termini.
